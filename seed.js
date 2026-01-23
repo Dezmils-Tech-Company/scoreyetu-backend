@@ -20,138 +20,100 @@ const connectDB = async () => {
 
 const seedData = async () => {
   try {
-    // Clear existing data
-    await School.deleteMany();
-    await Player.deleteMany();
-    await Game.deleteMany();
-    await Event.deleteMany();
+    // --- Schools ---
+    const schools = await School.insertMany([
+      { name: "Ramba Boys", location: "Siaya" },
+      { name: "Maseno School", location: "Maseno" },
+      { name: "Kisumu Girls", location: "Kisumu" },
+      { name: "Maranda School", location: "Maseno" },
+      { name: "Kisumu Boys", location: "Kisumu" },
+      { name: "Ekwanda Mixed school", location: "Maseno" },
+      { name: "Ng'iya Girls", location: "Kisumu" }
+    ]);
 
-    console.log("🗑️ Cleared old data");
+    // --- Games ---
+    const games = await Game.insertMany([
+      { name: "Basketball", description: "Team sport with hoops" },
+      { name: "Volleyball", description: "Team sport with net" },
+      { name: "Swimming", description: "Aquatic competition" },
+      { name: "Roll Ball", description: "Skate game" },
+      { name: "Tennis", description: "table,long tenis" }
+    ]);
 
-    // --- Create Schools ---
-    const kisumuHigh = await School.create({ name: "Kisumu High School", location: "Kisumu" });
-    const nyanzaGirls = await School.create({ name: "Nyanza Girls High School", location: "Kisumu" });
-    const maseno = await School.create({ name: "Maseno School", location: "Maseno" });
-    const moiGirls = await School.create({ name: "Moi Girls High School Kisumu", location: "Kisumu" });
+    // --- Players ---
+    const players = await Player.insertMany([
+      {
+        name: "Alice Atieno",
+        photo: "https://randomuser.me/api/portraits/women/1.jpg",
+        sport: "Basketball",
+        position: "Guard",
+        school: schools[0]._id,
+        games: [games[0]._id],
+        achievements: ["MVP 2025"],
+        stats: { matchesPlayed: 12, goalsScored: 200, assists: 50 }
+      },
+      {
+        name: "Brian Ouma",
+        photo: "https://randomuser.me/api/portraits/men/2.jpg",
+        sport: "Volleyball",
+        position: "Setter",
+        school: schools[1]._id,
+        games: [games[1]._id],
+        achievements: ["Best Server"],
+        stats: { matchesPlayed: 15, goalsScored: 0, assists: 120 }
+      },
+      {
+        name: "John Odipo",
+        photo: "https://res.cloudinary.com/daecietav/image/upload/v1768994094/mmmos_kmp59g.jpg",
+        position: "Freestyle",
+        school: schools[2]._id,
+        games: [games[2]._id],
+        achievements: ["Gold Medal 100m Freestyle"],
+        stats: { matchesPlayed: 8, goalsScored: 0, assists: 0 }
+      }
+    ]);
 
-    // --- Create Games (extendable list) ---
-    const gamesList = [
-      "Football", "Rugby", "Hockey", "Netball", "Athletics", "Tennis",
-      "Basketball", "Volleyball", "Swimming", "Chess", "Table Tennis"
-    ];
+    // --- Events ---
+    await Event.insertMany([
+      {
+        title: "Ramba Boys vs Maseno School",
+        sport: "Basketball",
+        date: new Date("2026-01-15"),
+        status: "Completed",
+        schools: [schools[0]._id, schools[1]._id],
+        games: [games[0]._id],
+        results: [
+          { school: schools[0]._id, wins: 1, draws: 0, losses: 0, points: 3, gf: 65, ga: 60 },
+          { school: schools[1]._id, wins: 0, draws: 0, losses: 1, points: 0, gf: 60, ga: 65 }
+        ]
+      },
+      {
+        title: "Ng'iya Girls vs Kisumu Girls",
+        sport: "Volleyball",
+        date: new Date("2026-01-20"),
+        status: "Completed",
+        schools: [schools[1]._id, schools[2]._id],
+        games: [games[1]._id],
+        results: [
+          { school: schools[1]._id, wins: 1, draws: 0, losses: 0, points: 3, gf: 3, ga: 1 },
+          { school: schools[2]._id, wins: 0, draws: 0, losses: 1, points: 0, gf: 1, ga: 3 }
+        ]
+      },
+      {
+        title: "Ramba Boys vs Kisumu Boys",
+        sport: "Swimming",
+        date: new Date("2026-01-25"),
+        status: "Upcoming",
+        schools: [schools[0]._id, schools[2]._id],
+        games: [games[2]._id],
+        results: [
+          { school: schools[0]._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 },
+          { school: schools[2]._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 }
+        ]
+      }
+    ]);
 
-    const gameDocs = {};
-    for (const g of gamesList) {
-      gameDocs[g] = await Game.create({ name: g });
-    }
-
-    // --- Create Events for each sport ---
-    await Event.create({
-      title: "Kisumu High vs Nyanza Girls",
-      sport: "Football",
-      date: new Date("2026-01-04"),
-      status: "Completed",
-      schools: [kisumuHigh._id, nyanzaGirls._id],
-      games: [gameDocs["Football"]._id],
-      results: [
-        { school: kisumuHigh._id, wins: 1, draws: 0, losses: 0, points: 3, gf: 2, ga: 1 },
-        { school: nyanzaGirls._id, wins: 0, draws: 0, losses: 1, points: 0, gf: 1, ga: 2 }
-      ]
-    });
-
-    await Event.create({
-      title: "Maseno School vs Moi Girls Kisumu",
-      sport: "Rugby",
-      date: new Date("2026-01-03"),
-      status: "Completed",
-      schools: [maseno._id, moiGirls._id],
-      games: [gameDocs["Rugby"]._id],
-      results: [
-        { school: maseno._id, wins: 1, draws: 0, losses: 0, points: 3, gf: 15, ga: 12 },
-        { school: moiGirls._id, wins: 0, draws: 0, losses: 1, points: 0, gf: 12, ga: 15 }
-      ]
-    });
-
-    await Event.create({
-      title: "Kisumu High vs Maseno School",
-      sport: "Hockey",
-      date: new Date("2026-01-02"),
-      status: "Completed",
-      schools: [kisumuHigh._id, maseno._id],
-      games: [gameDocs["Hockey"]._id],
-      results: [
-        { school: kisumuHigh._id, wins: 1, draws: 0, losses: 0, points: 3, gf: 3, ga: 0 },
-        { school: maseno._id, wins: 0, draws: 0, losses: 1, points: 0, gf: 0, ga: 3 }
-      ]
-    });
-
-    await Event.create({
-      title: "Nyanza Girls vs Moi Girls Kisumu",
-      sport: "Netball",
-      date: new Date("2026-01-01"),
-      status: "Completed",
-      schools: [nyanzaGirls._id, moiGirls._id],
-      games: [gameDocs["Netball"]._id],
-      results: [
-        { school: nyanzaGirls._id, wins: 1, draws: 0, losses: 0, points: 3, gf: 18, ga: 15 },
-        { school: moiGirls._id, wins: 0, draws: 0, losses: 1, points: 0, gf: 15, ga: 18 }
-      ]
-    });
-
-    await Event.create({
-      title: "Kisumu High vs Maseno School",
-      sport: "Athletics",
-      date: new Date("2025-12-30"),
-      status: "Completed",
-      schools: [kisumuHigh._id, maseno._id],
-      games: [gameDocs["Athletics"]._id],
-      results: [
-        { school: kisumuHigh._id, wins: 1, draws: 0, losses: 0, points: 3, gf: 52, ga: 48 },
-        { school: maseno._id, wins: 0, draws: 0, losses: 1, points: 0, gf: 48, ga: 52 }
-      ]
-    });
-
-    await Event.create({
-      title: "Nyanza Girls vs Kisumu High",
-      sport: "Tennis",
-      date: new Date("2026-02-29"),
-      status: "Upcoming",
-      schools: [nyanzaGirls._id, kisumuHigh._id],
-      games: [gameDocs["Tennis"]._id],
-      results: [
-        { school: nyanzaGirls._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 },
-        { school: kisumuHigh._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 }
-      ]
-    });
-
-    // Example extra games
-    await Event.create({
-      title: "Maseno School vs Kisumu High",
-      sport: "Basketball",
-      date: new Date("2026-03-05"),
-      status: "Upcoming",
-      schools: [maseno._id, kisumuHigh._id],
-      games: [gameDocs["Basketball"]._id],
-      results: [
-        { school: maseno._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 },
-        { school: kisumuHigh._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 }
-      ]
-    });
-
-    await Event.create({
-      title: "Moi Girls vs Nyanza Girls",
-      sport: "Volleyball",
-      date: new Date("2026-03-10"),
-      status: "Upcoming",
-      schools: [moiGirls._id, nyanzaGirls._id],
-      games: [gameDocs["Volleyball"]._id],
-      results: [
-        { school: moiGirls._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 },
-        { school: nyanzaGirls._id, wins: 0, draws: 0, losses: 0, points: 0, gf: 0, ga: 0 }
-      ]
-    });
-
-    console.log("✅ Seed data created successfully with all games");
+    console.log("✅ Seed data appended successfully (3+ per schema)");
     process.exit();
   } catch (err) {
     console.error("❌ Error seeding data:", err);

@@ -7,7 +7,7 @@ const playerSchema = mongoose.Schema({
   photo: { type: String }, // profile picture
 
   // Sports info
-  sport: { type: String, required: true }, // e.g. Football, Basketball
+   // e.g. Football, Basketball
   position: { type: String }, // e.g. Striker, Point Guard
 
   // Relationships
