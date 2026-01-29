@@ -27,10 +27,12 @@ import gameRoutes from "./routes/gameRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js"; 
 import standingsRoutes from "./routes/standingsRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // ----------------------
 // Use Routes
 // ----------------------
+app.use("/api", userRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/games", gameRoutes);
