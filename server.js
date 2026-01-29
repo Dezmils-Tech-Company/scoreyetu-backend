@@ -25,6 +25,8 @@ import schoolRoutes from "./routes/schoolRoutes.js";
 import playerRoutes from "./routes/playerRoutes.js";
 import gameRoutes from "./routes/gameRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import matchRoutes from "./routes/matchRoutes.js"; 
+import standingsRoutes from "./routes/standingsRoutes.js";
 
 // ----------------------
 // Use Routes
@@ -33,6 +35,8 @@ app.use("/api/schools", schoolRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/matches", matchRoutes); 
+app.use("/api/standings", standingsRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
