@@ -1,18 +1,26 @@
 import User from "../models/User.js";
 
-// Create or update user (upsert)
+// Create or update user
 export const upsertUser = async (req, res) => {
   try {
     const { name, email, image } = req.body;
-    if (!email) return res.status(400).json({ error: "Email is required" });
+    if (!email || !name) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
-    const user = await User.findOneAndUpdate(
-      { email },
-      { name, image },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
-    );
+    const now = new Date();
+    let user = await User.findOne({ email });
 
-    res.json(user);
+    if (user) {
+      user.lastLoggedIn = now;
+      await user.save();
+      return res.status(200).json({ message: "User updated", user });
+    }
+
+    user = new User({ name, email, image, role: "user", createdAt: now, lastLoggedIn: now });
+    await user.save();
+
+    res.status(201).json({ message: "User created", user });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -21,7 +29,7 @@ export const upsertUser = async (req, res) => {
 // Get all users
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find({}, "name email role image createdAt");
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -34,16 +42,6 @@ export const getUserByEmail = async (req, res) => {
     const user = await User.findOne({ email: req.params.email });
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Delete user
-export const deleteUser = async (req, res) => {
-  try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: "User deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
